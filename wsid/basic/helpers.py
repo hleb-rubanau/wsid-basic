@@ -1,3 +1,4 @@
+import requests 
 
 def normalize_identifier(url):
     url=url.split('?')[0]
