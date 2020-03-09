@@ -38,7 +38,7 @@ def validator(pattern, logger=None):
         pattern_path_parts=pattern_path_parts[1:]        
 
     if pattern_domain.startswith('*.'):
-        domainparts = pattern_domain[1:].split('.')
+        domainparts = pattern_domain[2:].split('.')
         if len(domainparts)<2 or not(all(domainparts)):
             raise PatternError(f"Too permissive wildcards in domain part (only third-level subdomains and below could be wildcarded): {pattern_domain}")
     elif '*' in pattern_domain:

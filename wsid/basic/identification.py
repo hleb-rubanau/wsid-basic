@@ -82,5 +82,5 @@ class PasswordAuthenticator:
             except InvalidkeyError:
                 continue
 
-        self.logger.info('No hashes matched ({len(hashes)} checked) for user {username}')
+        self.logger.info(f'No hashes matched ({len(hashes)} checked) for user {username}')
         return False
