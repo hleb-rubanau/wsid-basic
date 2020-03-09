@@ -11,8 +11,8 @@ def validator(pattern, logger=None):
 
     pattern=pattern.strip().strip('/')
 
-    if '*' in pattern.strip('*'):
-        raise  PatternError(f"Wildcards in the middle: {pattern}")
+    #if '*' in pattern.strip('*'):
+    #    raise  PatternError(f"Wildcards in the middle: {pattern}")
     if '://' in pattern:
         raise PatternError(f"Schema in the pattern: {pattern}'")
     if '?' in pattern:
