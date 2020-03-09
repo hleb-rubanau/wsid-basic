@@ -67,7 +67,7 @@ class PasswordAuthenticator:
         self.whitelist=whitelist
 
 
-    def authenticate(username, password):
+    def authenticate(self, username, password):
         if not self.whitelist(username):
             return False
 
