@@ -65,7 +65,7 @@ class PasswordAuthenticator:
 
     def __init__(self, whitelist):
         self.whitelist=whitelist
-
+        self.logger=logging.getLogger('wsid.basic.passwdauth')
 
     def authenticate(self, username, password):
         if not self.whitelist(username):
@@ -79,4 +79,5 @@ class PasswordAuthenticator:
             except InvalidKeyError:
                 continue
 
+        self.logger.info('No hashes matched ({len(hashes)} checked) for user {username}')
         return False
