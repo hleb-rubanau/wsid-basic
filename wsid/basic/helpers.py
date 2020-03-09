@@ -1,5 +1,5 @@
 
-def normalize_identifier(raw_url):
+def normalize_identifier(url):
     url=url.split('?')[0]
     url=url.split('://')[-1]
     url=url.strip('/')
