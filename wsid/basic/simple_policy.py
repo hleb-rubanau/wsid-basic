@@ -78,7 +78,7 @@ def validator(pattern, logger=None):
             return False
 
         # stripping off non-path part
-        path_parts = '/'.join(path_parts[1:])
+        path_parts = path_parts[1:]
         
         if not(len(path_parts)==len(pattern_path_parts)):
             logger.debug(f"validator {pattern}: rejecting {url} for path length mismatch. Expected: {len(pattern_path_parts)} ({pattern_path_parts}), got: {len(path_parts)} ({path_parts})")
@@ -104,6 +104,7 @@ def simple_ruleset(patterns, logger=None):
     validation = []
 
     for pattern in patterns:
+        pattern=pattern.strip()
         if pattern.startswith('!'):
             v = validator(pattern[1:], logger)
             validation.append( lambda x: -1 if v(x) else 0 )
@@ -117,13 +118,13 @@ def simple_ruleset(patterns, logger=None):
         for i,v in enumerate(validation):
             result = v(url)
             if result==0: 
-                logger.debug(f"Pattern { patterns[i] }: no match for '{url}', continuing")
+                logger.debug(f"Pattern { patterns[i].strip() }: no match for '{url}', continuing")
                 continue
             if result==1:
-                logger.debug(f"Pattern { patterns[i] }: matched '{url}', accepting")
+                logger.debug(f"Pattern { patterns[i].strip() }: matched '{url}', accepting")
                 return True
             if result==-1:
-                logger.debug(f"Pattern { patterns[i] }: rejection match for '{url}', rejecting")
+                logger.debug(f"Pattern { patterns[i].strip() }: rejection match for '{url}', rejecting")
                 return False
 
         logger.debug(f"Ruleset: no patterns match for {url}, rejecting by default")
