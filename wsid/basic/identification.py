@@ -1,4 +1,4 @@
-from cachetools import TTLCache
+from cachetools import TTLCache, cached
 from .helpers import get_remote_metadata, normalize_identifier
 import requests
 import nacl.pwhash
