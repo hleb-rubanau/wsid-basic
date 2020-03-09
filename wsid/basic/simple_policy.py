@@ -77,7 +77,9 @@ def validator(pattern, logger=None):
             logger.debug(f"validator {pattern}: rejecting {url} for lack of path part")
             return False
 
-        # now complex maths
+        # stripping off non-path part
+        path_parts = '/'.join(path_parts[1:])
+        
         if not(len(path_parts)==len(pattern_path_parts)):
             logger.debug(f"validator {pattern}: rejecting {url} for path length mismatch. Expected: {len(pattern_path_parts)} ({pattern_path_parts}), got: {len(path_parts)} ({path_parts})")
             return False
