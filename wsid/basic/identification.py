@@ -76,7 +76,7 @@ class PasswordAuthenticator:
             try: 
                 if nacl.pwhash.verify(h, password):
                     return True
-            except InvalidKeyError:
+            except InvalidkeyError:
                 continue
 
         self.logger.info('No hashes matched ({len(hashes)} checked) for user {username}')
