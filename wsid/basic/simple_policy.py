@@ -12,7 +12,7 @@ def validator(pattern):
     if '?' in pattern:
         raise PatternError(f"Prohibited sign '?': {pattern}")
     if not '.' in pattern:
-        raise PatternError(f"Pattern must include domain name: {pattern}"
+        raise PatternError(f"Pattern must include domain name: {pattern}")
     if pattern.endswith('*'):
         if not '/' in pattern:
             raise PatternError(f'Trailing wildcards are not allowed in domain names: {pattern}')    
