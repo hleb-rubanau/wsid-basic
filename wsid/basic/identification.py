@@ -10,19 +10,28 @@ CACHE_TTL=30
 
 @cached(cache=TTLCache(maxsize=CACHE_MAXSIZE,ttl=CACHE_TTL))
 def get_password_hashes(identity):    
-    return [ m.encode() for m in 
-                get_remote_metadata( identity, 'passwdhash' ).text.split('\n') 
-            if m ]
+    try:
+        return [ m.encode() for m in 
+                    get_remote_metadata( identity, 'passwdhash' ).text.split('\n') 
+                if m ]
+    except Exception as e:
+        logging.getLogger('wsid.basic').warning(f"Failed to fetch password hashes for {identity}: {e}")
+        return []
 
 @cached(cache=TTLCache(maxsize=CACHE_MAXSIZE,ttl=CACHE_TTL))
 def get_public_ssh_keys(raw_identity, overwrite_comments=True):
     identity = normalize_identifier(raw_identity)
-    keybodies = [ k for k in 
-                    get_remote_metadata(identity, 
-                                        'id_ed25519.pub').text.split('\n') 
-                  if k ]
-
     logger=logging.getLogger('wsid.basic')
+
+    try:
+        keybodies = [ k for k in 
+                        get_remote_metadata(identity, 
+                                            'id_ed25519.pub').text.split('\n') 
+                      if k ]
+    except Exception as e:
+        logger.warning(f"Failed to fetch SSH public keys for {identity}: {e}")
+        return []
+
     authorized_keys=[]
     for k in keybodies:
         fields=k.strip().split(' ')
@@ -63,9 +72,11 @@ class PasswordAuthenticator:
             return False
 
         hashes = get_password_hashes(username)
-        try:
-            nacl.pwhash.verify(password)
-        except InvalidKeyError:
-            return False 
+        for h in hashes:
+            try: 
+                if nacl.pwhash.verify(h, password):
+                    return True
+            except InvalidKeyError:
+                continue
 
-        return True
+        return False
