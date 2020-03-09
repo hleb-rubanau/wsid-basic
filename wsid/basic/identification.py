@@ -5,14 +5,16 @@ import nacl.pwhash
 import logging
 from nacl.exceptions import InvalidkeyError
 
+CACHE_MAXSIZE=1024
+CACHE_TTL=30
 
-@cached(cache=TTLCache(maxsize=1024,TTL=30))
+@cached(cache=TTLCache(maxsize=CACHE_MAXSIZE,ttl=CACHE_TTL))
 def get_password_hashes(identity):    
     return [ m.encode() for m in 
                 get_remote_metadata( identity, 'passwdhash' ).text.split('\n') 
             if m ]
 
-@cached(cache=TTLCache(maxsize=1024,TTL=30))
+@cached(cache=TTLCache(maxsize=CACHE_MAXSIZE,ttl=CACHE_TTL))
 def get_public_ssh_keys(raw_identity, overwrite_comments=True):
     identity = normalize_identifier(raw_identity)
     keybodies = [ k for k in 
@@ -39,7 +41,7 @@ def get_public_ssh_keys(raw_identity, overwrite_comments=True):
     return authorized_keys
             
 
-@cached(cache=TTLCache(maxsize=1024,TTL=30))
+@cached(cache=TTLCache(maxsize=CACHE_MAXSIZE,ttl=CACHE_TTL))
 def get_remote_host_ssh_keys(domain):
     hostkeys = get_remote_metadata(f"https://{domain}/.wsid", 
                                     'ssh_host_ed25519.pub').text.split('\n')
