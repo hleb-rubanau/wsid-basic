@@ -1,7 +1,13 @@
+import logging
+
 class PatternError(Exception):
     pass
 
-def validator(pattern):
+def validator(pattern, logger=None):
+
+    if not logger:
+        logger=logging.getLogger('wsid.basic.simple_policy.dummy')
+        logger.setLevel(logging.FATAL)
 
     pattern=pattern.strip('/')
 
@@ -47,8 +53,10 @@ def validator(pattern):
     def validate(url):
         url=url.strip().strip('/')
         if not url.startswith('https://'):
-            return False
+            url='https://'+url
+        
         if '?' in url:
+            logger.debug(f"validator {pattern}: rejecting {url}")
             return False
 
         schemaless_url=url[len('https://'):]
@@ -56,18 +64,22 @@ def validator(pattern):
     
         if pattern_domain_parts[0]=='*':
             if not( domain_parts[-1*(len(pattern_domain_parts)-1):]==pattern_domain_parts[1:]):
+                logger.debug(f"validator {pattern}: rejecting {url} per domain mismatch")
                 return False
         else:
             if not( domain_parts == pattern_domain_parts ):
+                logger.debug(f"validator {pattern}: rejecting {url} per domain mismatch")
                 return False
 
         path_parts = schemaless_url.split('/')
         if len(path_parts)==1:
             # identity could not be just domain
+            logger.debug(f"validator {pattern}: rejecting {url} for lack of path part")
             return False
 
         # now complex maths
         if not(len(path_parts)==len(pattern_path_parts)):
+            logger.debug(f"validator {pattern}: rejecting {url} for path mismatch")
             return False
 
         for i,e in enumerate(pattern_path_parts):
@@ -75,33 +87,44 @@ def validator(pattern):
             if e == '*':
                 continue
             if not (e==p):
+                logger.debug(f"validator {pattern}: rejecting {url} for path mismatch (expected: '{e}', got: '{p}')")
                 return False
         return True
 
     return lambda x: validate(x)
 
-def simple_ruleset(patterns):
+def simple_ruleset(patterns, logger=None):
+
+    if not logger:
+        logger=logging.getLogger('wsid.basic.simple_policy.dummy')
+        logger.setLevel(logging.FATAL)
 
     validation = []
 
     for pattern in patterns:
         if pattern.startswith('!'):
-            v = validator(pattern[1:])
+            v = validator(pattern[1:], logger)
             validation.append( lambda x: -1 if v(x) else 0 )
         else:
-            v = validator(pattern)
+            v = validator(pattern, logger)
             validation.append( lambda x: 1 if v(x) else 0 )
 
+    logger.debug(f"Ruleset built: {len(validation)} patterns")
     def validate(url):
-        for v in validation:
+        logger.debug(f"Ruleset: validating {url}")
+        for i,v in enumerate(validation):
             result = v(url)
             if result==0: 
+                logger.debug(f"Pattern { patterns[i] }: no match for '{url}', continuing")
                 continue
             if result==1:
+                logger.debug(f"Pattern { patterns[i] }: matched '{url}', accepting")
                 return True
             if result==-1:
+                logger.debug(f"Pattern { patterns[i] }: rejection match for '{url}', rejecting")
                 return False
 
+        logger.debug(f"Ruleset: no patterns match for {url}, rejecting by default")
         return False       
     
     return lambda x: validate(x)  
