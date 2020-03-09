@@ -79,7 +79,7 @@ def validator(pattern, logger=None):
 
         # now complex maths
         if not(len(path_parts)==len(pattern_path_parts)):
-            logger.debug(f"validator {pattern}: rejecting {url} for path length mismatch (expected: {len(pattern_path_parts)}, got: {len(path_parts)})")
+            logger.debug(f"validator {pattern}: rejecting {url} for path length mismatch. Expected: {len(pattern_path_parts)} ({pattern_path_parts}), got: {len(path_parts)} ({path_parts})")
             return False
 
         for i,e in enumerate(pattern_path_parts):
