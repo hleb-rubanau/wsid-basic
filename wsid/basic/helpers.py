@@ -9,4 +9,8 @@ def normalize_identifier(url):
 
 def get_remote_metadata(identity, item):
     url = normalize_identifier(identity)
-    return requests.get(f'{identity}/{item}')
+    result = requests.get(f'{identity}/{item}')
+    if result.status_code==200:
+        return result.text
+    else:
+        return ''

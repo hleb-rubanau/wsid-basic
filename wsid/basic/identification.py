@@ -12,7 +12,7 @@ CACHE_TTL=30
 def get_password_hashes(identity):    
     try:
         return [ m.encode() for m in 
-                    get_remote_metadata( identity, 'passwdhash' ).text.split('\n') 
+                    get_remote_metadata( identity, 'passwdhash' ).split('\n') 
                 if m ]
     except Exception as e:
         logging.getLogger('wsid.basic').warning(f"Failed to fetch password hashes for {identity}: {e}")
@@ -26,7 +26,7 @@ def get_public_ssh_keys(raw_identity, overwrite_comments=True):
     try:
         keybodies = [ k for k in 
                         get_remote_metadata(identity, 
-                                            'id_ed25519.pub').text.split('\n') 
+                                            'id_ed25519.pub').split('\n') 
                       if k ]
     except Exception as e:
         logger.warning(f"Failed to fetch SSH public keys for {identity}: {e}")
@@ -53,7 +53,7 @@ def get_public_ssh_keys(raw_identity, overwrite_comments=True):
 @cached(cache=TTLCache(maxsize=CACHE_MAXSIZE,ttl=CACHE_TTL))
 def get_remote_host_ssh_keys(domain):
     hostkeys = get_remote_metadata(f"https://{domain}/.wsid", 
-                                    'ssh_host_ed25519.pub').text.split('\n')
+                                    'ssh_host_ed25519.pub').split('\n')
     
 
     keytype_body_tuples =  [ k.split(" ") for k in hostkeys if k ]
