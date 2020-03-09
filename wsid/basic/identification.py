@@ -71,6 +71,9 @@ class PasswordAuthenticator:
         if not self.whitelist(username):
             return False
 
+        if not type(password)==bytes:
+            password=password.encode()
+
         hashes = get_password_hashes(username)
         for h in hashes:
             try: 
