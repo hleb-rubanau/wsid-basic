@@ -1,13 +1,15 @@
 from cachetools import TTLCache
 from .helpers import get_remote_metadata, normalize_identifier
 import requests
+import nacl.pwhash
+from nacl.exceptions import InvalidKeyError
+
 
 @cached(cache=TTLCache(maxsize=1024,TTL=30))
 def get_password_hashes(identity):    
-    return [ m for m in 
+    return [ m.encode() for m in 
                 get_remote_metadata( identity, 'passwdhash' ).text.split('\n') 
             if m ]
-
 
 @cached(cache=TTLCache(maxsize=1024,TTL=30))
 def get_public_ssh_keys(raw_identity, overwrite_comments=True):
@@ -42,3 +44,22 @@ def get_remote_host_ssh_keys(domain):
     keytype_body_tuples =  [ k.split(" ") for k in hostkeys if k ]
     host_keytype_keybody_tuples = [ (domain, k[0], k[1]) for k in keytype_body_tuples ]
     return host_keytype_keybody_tuples
+
+
+class PasswordIdentifier:
+
+    def __init__(self, whitelist):
+        self.whitelist=whitelist
+
+
+    def identify(username, password):
+        if not self.whitelist(username):
+            return False
+
+        hashes = get_password_hashes(username)
+        try:
+            nacl.pwhash.verify(password)
+        except InvalidKeyError:
+            return False 
+
+        return True
