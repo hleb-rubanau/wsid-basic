@@ -50,13 +50,13 @@ def get_remote_host_ssh_keys(domain):
     return host_keytype_keybody_tuples
 
 
-class PasswordIdentifier:
+class PasswordAuthenticator:
 
     def __init__(self, whitelist):
         self.whitelist=whitelist
 
 
-    def identify(username, password):
+    def authenticate(username, password):
         if not self.whitelist(username):
             return False
 
