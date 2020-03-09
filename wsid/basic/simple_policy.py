@@ -9,7 +9,7 @@ def validator(pattern, logger=None):
         logger=logging.getLogger('wsid.basic.simple_policy.dummy')
         logger.setLevel(logging.FATAL)
 
-    pattern=pattern.strip('/')
+    pattern=pattern.strip().strip('/')
 
     if '*' in pattern.strip('*'):
         raise  PatternError(f"Wildcards in the middle: {pattern}")
@@ -79,7 +79,7 @@ def validator(pattern, logger=None):
 
         # now complex maths
         if not(len(path_parts)==len(pattern_path_parts)):
-            logger.debug(f"validator {pattern}: rejecting {url} for path mismatch")
+            logger.debug(f"validator {pattern}: rejecting {url} for path length mismatch (expected: {len(pattern_path_parts)}, got: {len(path_parts)})")
             return False
 
         for i,e in enumerate(pattern_path_parts):
