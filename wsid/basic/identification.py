@@ -2,6 +2,7 @@ from cachetools import TTLCache
 from .helpers import get_remote_metadata, normalize_identifier
 import requests
 import nacl.pwhash
+import logging
 from nacl.exceptions import InvalidKeyError
 
 
@@ -23,6 +24,9 @@ def get_public_ssh_keys(raw_identity, overwrite_comments=True):
     authorized_keys=[]
     for k in keybodies:
         fields=k.strip().split(' ')
+        if fields[0].startswith('command'):
+            logger.warning(f"Skipping insecure item at {identity}: {k}")
+            
         if len(fields)==2:  
             fields.append(identity)
         elif len(fields)==3:
