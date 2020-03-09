@@ -3,7 +3,7 @@ from .helpers import get_remote_metadata, normalize_identifier
 import requests
 import nacl.pwhash
 import logging
-from nacl.exceptions import InvalidKeyError
+from nacl.exceptions import InvalidkeyError
 
 
 @cached(cache=TTLCache(maxsize=1024,TTL=30))
