@@ -34,10 +34,13 @@ def get_public_ssh_keys(raw_identity, overwrite_comments=True):
 
     authorized_keys=[]
     for k in keybodies:
-        fields=k.strip().split(' ')
-        if fields[0].startswith('command'):
+        if k.startswith('#'):
+            continue
+        if not k.startswith('ssh-ed25519 '):
             logger.warning(f"Skipping insecure item at {identity}: {k}")
-            
+            continue 
+
+        fields=k.strip().split(' ')
         if len(fields)==2:  
             fields.append(identity)
         elif len(fields)==3:
@@ -46,6 +49,8 @@ def get_public_ssh_keys(raw_identity, overwrite_comments=True):
         else:
             logger.warning(f"Skipping malformed key at {identity}: {fields}")
             continue
+
+        fields=[f"environment=\"WSID_IDENTITY={identity}\""]+fields
         authorized_keys.append(' '.join(fields))
     return authorized_keys
             
