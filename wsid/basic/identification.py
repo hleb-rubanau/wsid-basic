@@ -58,7 +58,7 @@ def get_public_ssh_keys(raw_identity, overwrite_comments=True):
 @cached(cache=TTLCache(maxsize=CACHE_MAXSIZE,ttl=CACHE_TTL))
 def get_remote_host_ssh_keys(domain):
     hostkeys = get_remote_metadata(f"https://{domain}/.wsid", 
-                                    'ssh_host_ed25519.pub').split('\n')
+                                    'ssh_host_ed25519_key.pub').split('\n')
     
 
     keytype_body_tuples =  [ k.split(" ") for k in hostkeys if k ]
