@@ -33,7 +33,7 @@ def validator(pattern, logger=None):
 
     pattern_path_parts = pattern.split('/')
     if len(pattern_path_parts)==1:
-        raise PatternError(f"Pattern must include path part: {pattern}")
+        pattern_path_parts=['*'] # assuming whole path is wildcarded
     else:
         pattern_path_parts=pattern_path_parts[1:]        
 
@@ -80,6 +80,10 @@ def validator(pattern, logger=None):
         # stripping off non-path part
         path_parts = path_parts[1:]
         
+        if pattern_path_parts==['*']:
+            logger.debug("All paths are matching to greedy wildcard ('/*'), accepting {'/'+'/'.join(path_parts)}")
+            return True
+        
         if not(len(path_parts)==len(pattern_path_parts)):
             logger.debug(f"validator {pattern}: rejecting {url} for path length mismatch. Expected: {len(pattern_path_parts)} ({pattern_path_parts}), got: {len(path_parts)} ({path_parts})")
             return False
@@ -91,6 +95,8 @@ def validator(pattern, logger=None):
             if not (e==p):
                 logger.debug(f"validator {pattern}: rejecting {url} for path mismatch (expected: '{e}', got: '{p}')")
                 return False
+        
+        logger.debug(f"validator {pattern}: confirmed {url}")
         return True
 
     return lambda x: validate(x)
@@ -102,21 +108,23 @@ def simple_ruleset(patterns, logger=None):
         logger.setLevel(logging.FATAL)
 
     validation = []
+    normalization = []
 
-    for pattern in patterns:
+    for i, pattern in enumerate(patterns):
         pattern=pattern.strip()
         if pattern.startswith('!'):
-            v = validator(pattern[1:], logger)
-            validation.append( lambda x: -1 if v(x) else 0 )
+            validation.append( validator(pattern[1:], logger) )
+            normalization.append( lambda x: -1 if x else 0  )
         else:
-            v = validator(pattern, logger)
-            validation.append( lambda x: 1 if v(x) else 0 )
+            validation.append(  validator(pattern, logger) )
+            normalization.append( lambda x: 1 if x else 0 )
 
     logger.debug(f"Ruleset built: {len(validation)} patterns")
     def validate(url):
         logger.debug(f"Ruleset: validating {url}")
         for i,v in enumerate(validation):
-            result = v(url)
+            raw_result = v(url)
+            result = normalization[i]( raw_result )
             if result==0: 
                 logger.debug(f"Pattern { patterns[i].strip() }: no match for '{url}', continuing")
                 continue
