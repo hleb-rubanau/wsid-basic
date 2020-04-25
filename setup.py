@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
      name='wsid-basic',  
-     version='0.0.1',
+     version='0.1.0',
      scripts=[] ,
      author="Hleb Rubanau",
      author_email="contact@rubanau.com",
